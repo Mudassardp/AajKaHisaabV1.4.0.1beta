@@ -6,7 +6,7 @@
 }
 
 body {
-    background-color: #f5f7fa;
+    background-color: #f8f9fa;
     color: #333;
     line-height: 1.6;
     padding: 20px;
@@ -18,24 +18,25 @@ body {
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    position: relative;
+    overflow: hidden;
 }
 
+/* Compact Dark Header Section */
 header {
     text-align: center;
-    margin-bottom: 30px;
-    border-bottom: 1px solid #eaeaea;
-    padding-bottom: 20px;
+    margin-bottom: 0;
+    padding: 20px 30px;
+    background-color: #2c3e50;
+    color: white;
 }
 
 .header-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
 }
 
 .sync-btn {
@@ -44,25 +45,26 @@ header {
 
 .mode-tabs {
     display: flex;
-    background-color: #f8f9fa;
+    background-color: rgba(255, 255, 255, 0.1);
     border-radius: 5px;
-    padding: 4px;
+    padding: 3px;
     margin: 0 auto;
 }
 
 .mode-tab {
-    padding: 8px 16px;
+    padding: 6px 12px;
     border: none;
     background: none;
     cursor: pointer;
     border-radius: 3px;
     font-weight: 600;
-    color: #7f8c8d;
+    color: #bdc3c7;
     transition: all 0.3s;
+    font-size: 0.9rem;
 }
 
 .mode-tab.active {
-    background-color: #3498db;
+    background-color: #5a6c7d;
     color: white;
 }
 
@@ -71,23 +73,26 @@ header {
 }
 
 h1 {
-    color: #2c3e50;
-    font-size: 2.5rem;
+    color: white;
+    font-size: 2rem;
     margin-bottom: 5px;
 }
 
 .tagline {
-    color: #7f8c8d;
-    font-size: 1.1rem;
+    color: #ecf0f1;
+    font-size: 1rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
+/* Light Content Area */
 .main-content {
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 25px;
+    padding: 25px;
+    background-color: #f8f9fa;
 }
 
 .mode-content {
@@ -100,10 +105,11 @@ h1 {
 
 .login-section {
     text-align: center;
-    padding: 40px 20px;
-    background-color: #f8f9fa;
+    padding: 30px 20px;
+    background-color: white;
     border-radius: 8px;
-    border: 1px dashed #dee2e6;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .login-section h2 {
@@ -119,18 +125,20 @@ h1 {
 
 .create-section, .existing-sheets-section {
     text-align: center;
-    padding: 20px;
-    background-color: #f8f9fa;
+    padding: 15px 20px;
+    background-color: white;
     border-radius: 8px;
-    border: 1px dashed #dee2e6;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
+/* Button Styles - Updated Colors */
 .btn {
-    background-color: #3498db;
+    background-color: #6c757d;
     color: white;
     border: none;
-    padding: 12px 25px;
-    font-size: 1.1rem;
+    padding: 10px 20px;
+    font-size: 1rem;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
@@ -138,44 +146,81 @@ h1 {
 }
 
 .btn:hover {
-    background-color: #2980b9;
+    background-color: #5a6268;
 }
 
-.btn-success {
-    background-color: #2ecc71;
+/* Viewer Mode - Sheet Action Buttons */
+#viewerContent .btn-success {
+    background-color: #28a745;
 }
 
-.btn-success:hover {
-    background-color: #27ae60;
+#viewerContent .btn-success:hover {
+    background-color: #218838;
 }
 
-.btn-warning {
-    background-color: #f39c12;
+#viewerContent .btn-danger {
+    background-color: #dc3545;
 }
 
-.btn-warning:hover {
-    background-color: #e67e22;
+#viewerContent .btn-danger:hover {
+    background-color: #c82333;
 }
 
-.btn-danger {
-    background-color: #e74c3c;
+/* Admin Mode - Sheet Action Buttons */
+#adminContent .btn-success {
+    background-color: #28a745;
 }
 
-.btn-danger:hover {
-    background-color: #c0392b;
+#adminContent .btn-success:hover {
+    background-color: #218838;
+}
+
+#adminContent .btn-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+#adminContent .btn-warning:hover {
+    background-color: #e0a800;
+}
+
+#adminContent .btn-danger {
+    background-color: #dc3545;
+}
+
+#adminContent .btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* Sync to Cloud Button - Green in All Modes */
+.sync-btn {
+    background-color: #28a745 !important;
+}
+
+.sync-btn:hover {
+    background-color: #218838 !important;
+}
+
+/* Logout Button - Red */
+#logoutBtn {
+    background-color: #dc3545;
+}
+
+#logoutBtn:hover {
+    background-color: #c82333;
 }
 
 .btn-info {
-    background-color: #9b59b6;
+    background-color: #6c757d;
 }
 
 .btn-info:hover {
-    background-color: #8e44ad;
+    background-color: #5a6268;
 }
 
 .btn-small {
-    padding: 8px 15px;
-    font-size: 0.9rem;
+    padding: 6px 12px;
+    font-size: 0.85rem;
 }
 
 .participants-section, .sheet-section, .edit-participants-section {
@@ -185,9 +230,9 @@ h1 {
 .section-title {
     color: #2c3e50;
     margin-bottom: 15px;
-    font-size: 1.3rem;
-    border-bottom: 2px solid #3498db;
-    padding-bottom: 8px;
+    font-size: 1.2rem;
+    border-bottom: 2px solid #6c757d;
+    padding-bottom: 6px;
     display: inline-block;
     white-space: nowrap;
     overflow: hidden;
@@ -199,20 +244,20 @@ h1 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
 }
 
 .sheet-name {
-    background-color: #e8f4fc;
-    padding: 10px 15px;
+    background-color: #f8f9fa;
+    padding: 8px 12px;
     border-radius: 5px;
     font-weight: 600;
     color: #2c3e50;
-    border-left: 4px solid #3498db;
+    border-left: 4px solid #6c757d;
     flex-grow: 1;
-    font-size: 1.1rem;
+    font-size: 1rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -220,8 +265,8 @@ h1 {
 
 .sheet-actions {
     display: flex;
-    gap: 10px;
-    margin-left: 15px;
+    gap: 8px;
+    margin-left: 12px;
     flex-wrap: wrap;
 }
 
@@ -229,25 +274,26 @@ h1 {
     list-style-type: none;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 15px;
-    margin-bottom: 20px;
+    gap: 12px;
+    margin-bottom: 15px;
 }
 
 .participant {
-    background-color: #f8f9fa;
-    padding: 15px;
+    background-color: white;
+    padding: 12px;
     border-radius: 8px;
     text-align: center;
-    border: 1px solid #e9ecef;
+    border: 1px solid #e0e0e0;
     transition: transform 0.2s, box-shadow 0.2s;
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    gap: 10px;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .participant:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -262,56 +308,58 @@ h1 {
 }
 
 .checkbox-container input {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     cursor: pointer;
 }
 
 .add-participant-section {
-    margin-top: 20px;
-    padding: 15px;
-    background-color: #e8f4fc;
+    margin-top: 15px;
+    padding: 12px;
+    background-color: #f8f9fa;
     border-radius: 8px;
-    border: 1px dashed #3498db;
+    border: 1px dashed #6c757d;
 }
 
 .add-participant-form {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
 }
 
 .add-participant-form input {
-    padding: 10px 15px;
+    padding: 8px 12px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    font-size: 1rem;
-    min-width: 200px;
+    font-size: 0.95rem;
+    min-width: 180px;
 }
 
 .custom-participant {
-    background-color: #e8f4fc;
-    border: 1px solid #3498db;
+    background-color: #f8f9fa;
+    border: 1px solid #6c757d;
 }
 
 .action-buttons {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     justify-content: center;
-    margin-top: 20px;
+    margin-top: 15px;
     flex-wrap: wrap;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-top: 15px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 th, td {
-    padding: 12px 15px;
+    padding: 10px 12px;
     text-align: left;
     border-bottom: 1px solid #e0e0e0;
 }
@@ -335,49 +383,53 @@ tr:hover {
 }
 
 .total-row {
-    background-color: #e8f4fc;
+    background-color: #f8f9fa;
     font-weight: bold;
 }
 
 .total-row td {
-    border-top: 2px solid #3498db;
+    border-top: 2px solid #6c757d;
 }
 
 input[type="number"] {
     width: 100%;
-    padding: 8px 10px;
+    padding: 6px 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
     text-align: right;
+    font-size: 0.9rem;
 }
 
 select {
     width: 100%;
-    padding: 8px 10px;
+    padding: 6px 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
     background-color: white;
     cursor: pointer;
+    font-size: 0.9rem;
 }
 
 .summary-box {
-    background-color: #f8f9fa;
-    padding: 15px;
+    background-color: white;
+    padding: 12px;
     border-radius: 8px;
-    margin-top: 20px;
-    border-left: 4px solid #3498db;
+    margin-top: 15px;
+    border-left: 4px solid #6c757d;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .summary-box h3 {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     color: #2c3e50;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
 }
 
 .summary-item {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
+    font-size: 0.95rem;
 }
 
 .currency {
@@ -386,47 +438,50 @@ select {
 }
 
 .meals-summary {
-    background-color: #e8f4fc;
-    padding: 10px 15px;
+    background-color: #f8f9fa;
+    padding: 8px 12px;
     border-radius: 5px;
-    margin-top: 10px;
-    border-left: 3px solid #3498db;
+    margin-top: 8px;
+    border-left: 3px solid #6c757d;
 }
 
 .settlement-section {
-    background-color: #f8f9fa;
-    padding: 20px;
+    background-color: white;
+    padding: 15px;
     border-radius: 8px;
-    margin-top: 20px;
-    border-left: 4px solid #9b59b6;
+    margin-top: 15px;
+    border-left: 4px solid #6c757d;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .settlement-section h3 {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
+    color: #2c3e50;
 }
 
 .settlement-list {
     list-style-type: none;
-    margin-top: 15px;
+    margin-top: 12px;
 }
 
 .settlement-item {
     background-color: white;
-    padding: 12px 15px;
-    margin-bottom: 8px;
+    padding: 10px 12px;
+    margin-bottom: 6px;
     border-radius: 8px;
-    border: 1px solid #e9ecef;
+    border: 1px solid #e0e0e0;
     display: flex;
     justify-content: space-between;
     align-items: center;
     transition: transform 0.2s, box-shadow 0.2s;
     flex-wrap: wrap;
-    gap: 5px;
+    gap: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .settlement-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
 .settlement-details {
@@ -443,40 +498,43 @@ select {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding: 0 5px;
-    font-size: 0.9rem;
+    padding: 0 4px;
+    font-size: 0.85rem;
+    color: #2c3e50;
 }
 
 .settlement-arrow {
     color: #7f8c8d;
     font-weight: bold;
-    margin: 0 5px;
+    margin: 0 4px;
     flex-shrink: 0;
 }
 
 .settlement-amount {
     font-weight: bold;
     color: #2c3e50;
-    background-color: #e8f4fc;
-    padding: 5px 10px;
+    background-color: #f8f9fa;
+    padding: 4px 8px;
     border-radius: 4px;
-    border: 1px solid #3498db;
-    min-width: 90px;
-    max-width: 120px;
+    border: 1px solid #6c757d;
+    min-width: 80px;
+    max-width: 100px;
     text-align: center;
     flex-shrink: 0;
+    font-size: 0.85rem;
 }
 
-/* Settlement Status Styles */
+/* Settlement Status Styles - Keep original green/red colors */
 .settlement-status {
     font-weight: bold;
-    padding: 5px 10px;
+    padding: 4px 8px;
     border-radius: 4px;
     border: 1px solid;
-    min-width: 90px;
-    max-width: 120px;
+    min-width: 80px;
+    max-width: 100px;
     text-align: center;
     flex-shrink: 0;
+    font-size: 0.85rem;
 }
 
 .status-paid {
@@ -491,19 +549,19 @@ select {
     border-color: #e74c3c;
 }
 
-/* Toggle Button for Admin */
+/* Toggle Button for Admin - Keep original green/red colors */
 .settlement-toggle-btn {
     font-weight: bold;
-    padding: 5px 10px;
+    padding: 4px 8px;
     border-radius: 4px;
     border: 1px solid;
-    min-width: 90px;
-    max-width: 120px;
+    min-width: 80px;
+    max-width: 100px;
     text-align: center;
     flex-shrink: 0;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
 .settlement-toggle-btn.paid {
@@ -514,7 +572,7 @@ select {
 
 .settlement-toggle-btn.paid:hover {
     background-color: #d4edda;
-    transform: scale(1.05);
+    transform: scale(1.03);
 }
 
 .settlement-toggle-btn.not-paid {
@@ -525,25 +583,25 @@ select {
 
 .settlement-toggle-btn.not-paid:hover {
     background-color: #f8d7da;
-    transform: scale(1.05);
+    transform: scale(1.03);
 }
 
 .no-settlements {
     text-align: center;
     color: #7f8c8d;
-    padding: 20px;
+    padding: 15px;
     font-style: italic;
 }
 
 .sheets-list {
     list-style-type: none;
-    margin-top: 15px;
+    margin-top: 12px;
 }
 
 .sheet-item {
     background-color: white;
-    padding: 12px 15px;
-    margin-bottom: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
     border-radius: 5px;
     border: 1px solid #e0e0e0;
     display: flex;
@@ -551,6 +609,7 @@ select {
     align-items: center;
     cursor: pointer;
     transition: background-color 0.2s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .sheet-item:hover {
@@ -559,7 +618,7 @@ select {
 
 .sheet-date {
     color: #7f8c8d;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -567,15 +626,15 @@ select {
 
 .sheet-item-actions {
     display: flex;
-    gap: 8px;
+    gap: 6px;
 }
 
 .delete-sheet-btn, .rename-sheet-btn {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 1.2rem;
-    padding: 5px;
+    font-size: 1.1rem;
+    padding: 4px;
     border-radius: 3px;
     transition: background-color 0.2s;
 }
@@ -589,33 +648,34 @@ select {
 }
 
 .rename-sheet-btn {
-    color: #3498db;
+    color: #6c757d;
 }
 
 .rename-sheet-btn:hover {
-    background-color: #e8f4fc;
+    background-color: #f8f9fa;
 }
 
 .no-sheets {
     text-align: center;
     color: #7f8c8d;
-    padding: 20px;
+    padding: 15px;
 }
 
 .edit-participants-list {
     list-style-type: none;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .edit-participant-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 15px;
-    margin-bottom: 10px;
-    background-color: #f8f9fa;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background-color: white;
     border-radius: 5px;
-    border: 1px solid #e9ecef;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .edit-participant-name {
@@ -628,8 +688,8 @@ select {
     border: none;
     color: #e74c3c;
     cursor: pointer;
-    font-size: 1.2rem;
-    padding: 5px;
+    font-size: 1.1rem;
+    padding: 4px;
     border-radius: 3px;
     transition: background-color 0.2s;
 }
@@ -654,49 +714,55 @@ select {
 
 .modal-content {
     background-color: white;
-    padding: 30px;
+    padding: 25px;
     border-radius: 10px;
-    max-width: 400px;
+    max-width: 380px;
     width: 90%;
     text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .modal h3 {
-    margin-bottom: 15px;
+    margin-bottom: 12px;
     color: #2c3e50;
+    font-size: 1.3rem;
 }
 
 .modal p {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     color: #7f8c8d;
+    font-size: 0.95rem;
 }
 
 .modal-buttons {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     justify-content: center;
 }
 
 .form-input {
     width: 100%;
-    padding: 12px 15px;
+    padding: 10px 12px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    font-size: 1rem;
-    margin-bottom: 15px;
+    font-size: 0.95rem;
+    margin-bottom: 12px;
 }
 
 .form-input:focus {
     outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+    border-color: #6c757d;
+    box-shadow: 0 0 5px rgba(108, 117, 125, 0.3);
 }
 
+/* Dark Footer Section */
 footer {
-    margin-top: 40px;
+    margin-top: 0;
     text-align: center;
-    color: #7f8c8d;
-    font-size: 0.9rem;
+    color: #ecf0f1;
+    font-size: 0.85rem;
+    padding: 15px;
+    background-color: #2c3e50;
 }
 
 /* PDF Loading Styles */
@@ -715,18 +781,18 @@ footer {
 }
 
 .pdf-loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 5px solid #f3f3f3;
-    border-top: 5px solid #3498db;
+    width: 45px;
+    height: 45px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #6c757d;
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
 }
 
 .pdf-loading-text {
     color: #2c3e50;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
 }
 
@@ -737,12 +803,12 @@ footer {
 
 /* PDF Page Break Controls */
 .pdf-section {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     page-break-inside: avoid;
 }
 
 .pdf-settlement-section {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     page-break-before: always;
     page-break-inside: avoid;
 }
@@ -770,15 +836,15 @@ h1, h2, h3 {
 /* Better spacing for PDF */
 @media print {
     .pdf-container {
-        padding: 15px;
+        padding: 12px;
     }
     
     .pdf-section {
-        margin-bottom: 20px;
+        margin-bottom: 15px;
     }
     
     .pdf-settlement-section {
-        margin-top: 30px;
+        margin-top: 25px;
     }
 }
 
@@ -790,13 +856,13 @@ h1, h2, h3 {
     
     .sync-btn {
         margin-right: 0;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         align-self: flex-start;
     }
     
     .mode-tabs {
         order: 2;
-        margin: 10px 0;
+        margin: 8px 0;
     }
     
     .user-status {
@@ -806,21 +872,21 @@ h1, h2, h3 {
     }
     
     table {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
     }
     
     th, td {
-        padding: 8px 10px;
+        padding: 6px 8px;
     }
     
     .settlement-details {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
     }
     
     .settlement-amount, .settlement-status, .settlement-toggle-btn {
-        min-width: 70px;
-        padding: 4px 8px;
-        font-size: 0.85rem;
+        min-width: 65px;
+        padding: 3px 6px;
+        font-size: 0.8rem;
     }
     
     .sheet-header {
@@ -830,7 +896,7 @@ h1, h2, h3 {
     
     .sheet-actions {
         margin-left: 0;
-        margin-top: 10px;
+        margin-top: 8px;
         width: 100%;
         justify-content: center;
     }
@@ -838,11 +904,15 @@ h1, h2, h3 {
 
 @media (max-width: 600px) {
     .container {
-        padding: 15px;
+        padding: 0;
+    }
+    
+    .main-content {
+        padding: 12px;
     }
     
     h1 {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
     
     .section-title {
@@ -850,11 +920,11 @@ h1, h2, h3 {
     }
     
     .participants-list {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     }
     
     th, td {
-        padding: 6px 8px;
+        padding: 5px 6px;
     }
     
     .action-buttons {
@@ -876,10 +946,10 @@ h1, h2, h3 {
     }
     
     .settlement-details {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 8px;
+        gap: 6px;
     }
     
     .settlement-from, .settlement-to, .settlement-arrow, .settlement-amount, .settlement-status, .settlement-toggle-btn {
@@ -891,11 +961,11 @@ h1, h2, h3 {
     }
     
     .settlement-amount, .settlement-status, .settlement-toggle-btn {
-        min-width: 60px;
-        font-size: 0.8rem;
+        min-width: 55px;
+        font-size: 0.75rem;
     }
     
     .sheet-name {
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
 }
