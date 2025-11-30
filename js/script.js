@@ -1013,7 +1013,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // PDF Generation Handler
+      // PDF Generation Handler
     function handlePDFGeneration() {
         if (!currentSheetData) {
             alert('No sheet data available to share');

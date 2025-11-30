@@ -3,26 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HisaabKitaab - Expense Splitter</title>
+    <title>HisaabKitaabApp - Expense Splitter</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
-            <div class="header-top">
+            <div class="header-main">
+                <h1>HisaabKitaabApp</h1>
                 <button id="manualSyncBtn" class="btn btn-small btn-info sync-btn">Sync to Cloud</button>
+            </div>
+            
+            <div class="mode-tabs-container">
                 <div class="mode-tabs">
                     <button id="viewerTab" class="mode-tab active">Viewer Mode</button>
                     <button id="adminTab" class="mode-tab">Admin Mode</button>
                 </div>
-                <div id="userStatus" class="user-status" style="display: none;">
-                    <button id="logoutBtn" class="btn btn-small">Logout</button>
-                </div>
             </div>
             
-            <h1>HisaabKitaab</h1>
-            <p class="tagline">Weekly Expense Split</p>
+            <!-- Floating Logout Button -->
+            <div id="userStatus" class="user-status" style="display: none;">
+                <button id="logoutBtn" class="btn btn-small logout-btn">Logout</button>
+            </div>
         </header>
         
         <div class="main-content">
@@ -42,8 +45,6 @@
             <div id="adminContent" class="mode-content">
                 <!-- Login Section for Normal Users -->
                 <div id="loginSection" class="login-section">
-                    <h2>Admin Access Required</h2>
-                    <p>Login as admin to create and manage expense sheets.</p>
                     <div class="action-buttons">
                         <button id="loginAsAdminBtn" class="btn btn-info">Login as Admin</button>
                     </div>
@@ -52,7 +53,6 @@
                 <!-- Admin Only Sections -->
                 <div id="adminSections" style="display: none;">
                     <div class="create-section">
-                        <h2>Start a New Expense Sheet</h2>
                         <button id="createBtn" class="btn">Create New Hisaab</button>
                     </div>
                     
@@ -205,7 +205,7 @@
         </div>
         
         <footer>
-            <p>HisaabKitaab©2025(created by Mudassar)-v1.4</p>
+            <p>HisaabKitaabApp©2025(created by Mudassar)-v1.4</p>
         </footer>
     </div>
 

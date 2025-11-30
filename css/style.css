@@ -9,38 +9,67 @@ body {
     background-color: #f8f9fa;
     color: #333;
     line-height: 1.6;
-    padding: 20px;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
 }
 
 .container {
     max-width: 1000px;
     margin: 0 auto;
     background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Compact Dark Header Section */
+/* Fixed Header Section */
 header {
     text-align: center;
     margin-bottom: 0;
-    padding: 20px 30px;
+    padding: 12px 30px 8px 30px;
     background-color: #2c3e50;
     color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    flex-shrink: 0;
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
-.header-top {
+.header-main {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     flex-wrap: wrap;
     gap: 8px;
+    position: relative;
+}
+
+.header-main h1 {
+    color: white;
+    font-size: 1.8rem;
+    margin: 0;
 }
 
 .sync-btn {
-    margin-right: auto;
+    margin: 0;
+}
+
+.mode-tabs-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .mode-tabs {
@@ -68,31 +97,44 @@ header {
     color: white;
 }
 
+/* Floating Logout Button */
 .user-status {
-    margin-left: auto;
+    position: absolute;
+    top: 60px;
+    right: 32px;
+    z-index: 101;
 }
 
-h1 {
-    color: white;
-    font-size: 2rem;
-    margin-bottom: 5px;
+.logout-btn {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border: none;
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    min-width: auto;
 }
 
-.tagline {
-    color: #ecf0f1;
-    font-size: 1rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.logout-btn:hover {
+    background-color: #c82333;
+    transform: scale(1.05);
 }
 
-/* Light Content Area */
+/* Scrollable Main Content */
 .main-content {
     display: flex;
     flex-direction: column;
-    gap: 25px;
-    padding: 25px;
+    gap: 15px;
+    padding: 20px;
     background-color: #f8f9fa;
+    flex: 1;
+    overflow-y: auto;
+    margin-top: 110px;
+    margin-bottom: 60px;
 }
 
 .mode-content {
@@ -105,31 +147,33 @@ h1 {
 
 .login-section {
     text-align: center;
-    padding: 30px 20px;
+    padding: 20px;
     background-color: white;
     border-radius: 8px;
     border: 1px solid #e0e0e0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.login-section h2 {
-    color: #2c3e50;
-    margin-bottom: 15px;
-}
-
-.login-section p {
-    color: #7f8c8d;
-    margin-bottom: 20px;
-    font-size: 1.1rem;
+.login-section .action-buttons {
+    margin: 0;
 }
 
 .create-section, .existing-sheets-section {
     text-align: center;
-    padding: 15px 20px;
     background-color: white;
     border-radius: 8px;
     border: 1px solid #e0e0e0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.create-section {
+    padding: 25px 20px;
+    margin-bottom: 15px;
+    margin-top: 10px;
+}
+
+.existing-sheets-section {
+    padding: 15px 20px 20px 20px;
 }
 
 /* Button Styles - Updated Colors */
@@ -148,6 +192,50 @@ h1 {
 .btn:hover {
     background-color: #5a6268;
 }
+
+/* ===== MOBILE-ONLY STYLES ===== */
+
+/* For tablets and mobile (768px and below) */
+@media (max-width: 768px) {
+    /* Space above login container */
+    .login-section {
+        margin-top: 40px !important;
+        padding: 25px 20px !important;
+    }
+    
+    /* Login button color and style */
+    #loginAsAdminBtn {
+        background-color: #28a745 !important;
+        color: white !important;
+        padding: 14px 28px !important;
+        font-size: 1.1rem !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+    }
+    
+    #loginAsAdminBtn:hover {
+        background-color: #218838 
+        transform: translateY(-2px) !important;
+    }
+}
+
+/* For small mobile devices (600px and below) */
+@media (max-width: 600px) {
+    .login-section {
+        margin-top: 30px !important;
+        padding: 20px 15px !important;
+    }
+    
+    #loginAsAdminBtn {
+        padding: 12px 24px !important;
+        font-size: 1rem !important;
+    }
+}
+
+
+
+
+
 
 /* Viewer Mode - Sheet Action Buttons */
 #viewerContent .btn-success {
@@ -201,15 +289,6 @@ h1 {
     background-color: #218838 !important;
 }
 
-/* Logout Button - Red */
-#logoutBtn {
-    background-color: #dc3545;
-}
-
-#logoutBtn:hover {
-    background-color: #c82333;
-}
-
 .btn-info {
     background-color: #6c757d;
 }
@@ -229,7 +308,7 @@ h1 {
 
 .section-title {
     color: #2c3e50;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     font-size: 1.2rem;
     border-bottom: 2px solid #6c757d;
     padding-bottom: 6px;
@@ -461,7 +540,7 @@ select {
 
 .settlement-list {
     list-style-type: none;
-    margin-top: 12px;
+    margin-top: 10px;
 }
 
 .settlement-item {
@@ -595,7 +674,7 @@ select {
 
 .sheets-list {
     list-style-type: none;
-    margin-top: 12px;
+    margin-top: 8px;
 }
 
 .sheet-item {
@@ -755,14 +834,21 @@ select {
     box-shadow: 0 0 5px rgba(108, 117, 125, 0.3);
 }
 
-/* Dark Footer Section */
+/* Fixed Footer Section */
 footer {
-    margin-top: 0;
     text-align: center;
     color: #ecf0f1;
     font-size: 0.85rem;
-    padding: 15px;
+    padding: 12px;
     background-color: #2c3e50;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    flex-shrink: 0;
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
 /* PDF Loading Styles */
@@ -849,26 +935,43 @@ h1, h2, h3 {
 }
 
 @media (max-width: 768px) {
-    .header-top {
+    .header-main {
         flex-direction: column;
-        align-items: stretch;
+        align-items: center;
+        gap: 10px;
     }
     
-    .sync-btn {
-        margin-right: 0;
-        margin-bottom: 8px;
-        align-self: flex-start;
+    .mode-tabs-container {
+        flex-direction: column;
+        gap: 10px;
     }
     
     .mode-tabs {
-        order: 2;
-        margin: 8px 0;
+        width: 100%;
+        justify-content: center;
     }
     
     .user-status {
-        order: 3;
-        margin-left: 0;
-        align-self: flex-end;
+        position: absolute;
+        top: 75px;
+        right: 10px;
+    }
+    
+    .logout-btn {
+        padding: 4px 10px;
+        font-size: 0.75rem;
+        border-radius: 10px;
+    }
+    
+    .main-content {
+        margin-top: 120px;
+        margin-bottom: 60px;
+    }
+    
+    .create-section {
+        padding: 20px 15px;
+        margin-bottom: 15px;
+        margin-top: 5px;
     }
     
     table {
@@ -909,10 +1012,12 @@ h1, h2, h3 {
     
     .main-content {
         padding: 12px;
+        margin-top: 130px;
+        margin-bottom: 60px;
     }
     
-    h1 {
-        font-size: 1.8rem;
+    .header-main h1 {
+        font-size: 1.6rem;
     }
     
     .section-title {
@@ -968,4 +1073,70 @@ h1, h2, h3 {
     .sheet-name {
         font-size: 0.95rem;
     }
+    
+    .user-status {
+        top: 75px;
+        right: 5px;
+    }
+    
+    .logout-btn {
+        padding: 4px 9px;
+        font-size: 0.75rem;
+        border-radius: 8px;
+    }
+
+    
+/* ... all your existing CSS code ... */
+
+/* ===== ADD YOUR NEW CODE RIGHT HERE ===== */
+
+/* ===== GLOBAL STYLES (All devices) ===== */
+
+/* Login button color - applies to desktop AND mobile */
+#loginAsAdminBtn {
+    background-color: #28a745 !important;
+    color: white !important;
+}
+
+#loginAsAdminBtn:hover {
+    background-color: #218838 !important;
+}
+
+/* ===== MOBILE-ONLY STYLES ===== */
+
+@media (max-width: 768px) {
+    /* Space above login container - mobile only */
+    .login-section {
+        margin-top: 40px !important;
+        padding: 25px 20px !important;
+    }
+    
+    /* Login button size adjustments - mobile only */
+    #loginAsAdminBtn {
+        padding: 14px 28px !important;
+        font-size: 1.1rem !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+    }
+    
+    #loginAsAdminBtn:hover {
+        transform: translateY(-2px) !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .login-section {
+        margin-top: 30px !important;
+        padding: 20px 15px !important;
+    }
+    
+    #loginAsAdminBtn {
+        padding: 12px 24px !important;
+        font-size: 1rem !important;
+    }
+}
+
+
+
+
 }
