@@ -10,3 +10,4 @@ Your Project Folder/
     └── pdf-generator.js
     └── Firebaseconfig.js
     └── firebase-sync.js
+    └── profile-manager.js

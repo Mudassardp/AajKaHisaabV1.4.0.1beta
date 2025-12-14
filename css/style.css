@@ -43,7 +43,6 @@
     border-bottom: 2px solid var(--primary-color);
 }
 
-
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
@@ -879,9 +878,209 @@ footer {
     100% { transform: rotate(360deg); }
 }
 
+/* Control Panel Styles (NEW for v1.6) */
+.control-panel-modal {
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.control-panel-section {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.control-panel-section:last-child {
+    border-bottom: none;
+    margin-bottom: 15px;
+}
+
+.control-panel-section h4 {
+    color: var(--primary-color);
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+}
+
+.control-panel-description {
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    font-style: italic;
+}
+
+.default-participants-list {
+    list-style-type: none;
+    margin: 15px 0;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+}
+
+.default-participant-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s;
+}
+
+.default-participant-item:last-child {
+    border-bottom: none;
+}
+
+.default-participant-item:hover {
+    background-color: var(--hover-bg);
+}
+
+.default-participant-name {
+    font-weight: 600;
+    color: var(--text-color);
+    flex-grow: 1;
+}
+
+.remove-default-participant-btn {
+    background: none;
+    border: none;
+    color: var(--danger-color);
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 5px;
+    border-radius: 3px;
+    transition: background-color 0.2s;
+    margin-left: 10px;
+}
+
+.remove-default-participant-btn:hover {
+    background-color: color-mix(in srgb, var(--danger-color) 15%, transparent);
+}
+
+.summary-info {
+    background-color: color-mix(in srgb, var(--primary-color) 10%, transparent);
+    padding: 15px;
+    border-radius: 5px;
+    border-left: 3px solid var(--primary-color);
+}
+
+.password-change-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.password-change-form .form-input {
+    margin-bottom: 0;
+}
+
+/* Control Panel Participant Item Styles */
+.default-participant-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s;
+}
+
+.default-participant-item:last-child {
+    border-bottom: none;
+}
+
+.default-participant-item:hover {
+    background-color: var(--hover-bg);
+}
+
+.default-participant-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-grow: 1;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+.default-participant-info:hover {
+    background-color: color-mix(in srgb, var(--primary-color) 10%, transparent);
+}
+
+.default-participant-name {
+    font-weight: 600;
+    color: var(--text-color);
+    flex-grow: 1;
+}
+
+.default-participant-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: 10px;
+}
+
+.edit-profile-btn, .remove-default-participant-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 5px;
+    border-radius: 3px;
+    transition: background-color 0.2s;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-profile-btn {
+    color: var(--primary-color);
+}
+
+.edit-profile-btn:hover {
+    background-color: color-mix(in srgb, var(--primary-color) 15%, transparent);
+}
+
+.remove-default-participant-btn {
+    color: var(--danger-color);
+}
+
+.remove-default-participant-btn:hover {
+    background-color: color-mix(in srgb, var(--danger-color) 15%, transparent);
+}
+
+/* Add participant form in Control Panel */
+.add-participant-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.add-participant-form input {
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1rem;
+    min-width: 200px;
+    background-color: var(--container-bg);
+    color: var(--text-color);
+    flex-grow: 1;
+}
+
+.add-participant-form input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
+
+
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
-   @media (max-width: 768px) {
     .header-top {
         flex-direction: column;
         align-items: stretch;
@@ -947,20 +1146,215 @@ footer {
         width: 100%;
         justify-content: center;
     }
+}
+
+/* Profile Photo Styles */
+.profile-photo {
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: inline-block;
+    vertical-align: middle;
+    border: 2px solid var(--primary-color);
+}
+
+.profile-photo-initials {
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    border: 2px solid var(--primary-color);
+}
+
+/* Profile Card Modal */
+.profile-card-modal {
+    max-width: 400px;
+}
+
+.profile-card-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.profile-photo-large {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 15px;
+}
+
+.profile-photo-large-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    border: 4px solid var(--primary-color);
+}
+
+.profile-photo-large-initials {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: bold;
+    border: 4px solid var(--primary-color);
+}
+
+.profile-details {
+    background-color: var(--hover-bg);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.profile-detail-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.profile-detail-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.detail-value {
+    text-align: right;
+    color: var(--text-color);
+    max-width: 60%;
+    word-break: break-word;
+}
+
+/* Profile Edit Form */
+.profile-edit-form {
+    background-color: color-mix(in srgb, var(--primary-color) 10%, transparent);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px dashed var(--primary-color);
+}
+
+.profile-edit-form h4 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.photo-upload-section {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+/* Clickable Profile */
+.clickable-profile {
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.clickable-profile:hover {
+    opacity: 0.8;
+}
+
+/* Sheet Participants */
+.sheet-participants {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+}
+
+.sheet-participant {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.sheet-participant:hover {
+    transform: scale(1.1);
+}
+
+.more-participants {
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+    margin-left: 5px;
+}
+
+/* Default Participants in Control Panel */
+.default-participant-item .default-participant-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Dark Mode Adjustments */
+.dark-mode .profile-photo-initials {
+    border-color: var(--primary-color);
+}
+
+.dark-mode .profile-photo-large-initials {
+    border-color: var(--primary-color);
+}
+
+/* Mobile Responsiveness for Profile */
+@media (max-width: 600px) {
+    .profile-card-modal {
+        max-width: 90%;
+    }
     
-     /* Remove or comment out these lines:
-    .mode-tabs-container {
+    .profile-photo-large {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .profile-photo-large-initials {
+        font-size: 28px;
+    }
+    
+    .profile-detail-item {
         flex-direction: column;
         gap: 5px;
     }
     
-    .mode-tabs, .sync-tab-btn {
+    .detail-value {
+        max-width: 100%;
+        text-align: left;
+    }
+    
+    .photo-upload-section {
+        flex-direction: column;
+    }
+    
+    .photo-upload-section button {
         width: 100%;
     }
-    */
+}
+
+
 
 @media (max-width: 600px) {
-  @media (max-width: 600px) {
     .container {
         padding: 15px;
     }
@@ -1021,7 +1415,7 @@ footer {
         width: 100%;
     }
     
-    #logoutBtn {
+    #logoutBtn, #controlPanelBtn {
         padding: 4px 8px;
         font-size: 0.75rem;
         min-width: 60px;
@@ -1133,4 +1527,172 @@ footer {
     .sheet-name {
         font-size: 1rem;
     }
+    
+    /* Control Panel Mobile */
+    .control-panel-modal {
+        max-width: 90%;
+        max-height: 85vh;
+    }
+    
+    .control-panel-section h4 {
+        font-size: 1rem;
+    }
+    
+    .default-participant-item {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
 }
+
+/* Bank-Aware Settlement Styles */
+.settlement-summary {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: color-mix(in srgb, var(--success-color) 15%, transparent);
+    border: 1px solid var(--success-color);
+}
+
+.bank-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 8px;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    background-color: var(--success-color);
+    color: white;
+    white-space: nowrap;
+}
+
+.settlement-tips {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: var(--hover-bg);
+    border-radius: 8px;
+    border-left: 4px solid var(--info-color);
+}
+
+.settlement-tips ul {
+    margin: 10px 0 0 20px;
+    padding: 0;
+}
+
+.settlement-tips li {
+    margin-bottom: 5px;
+    color: var(--secondary-color);
+}
+
+/* Settlement item with same bank */
+.settlement-item.same-bank {
+    border-left: 4px solid var(--success-color);
+    background-color: color-mix(in srgb, var(--success-color) 10%, transparent);
+}
+
+/* Dark mode adjustments for bank indicator */
+.dark-mode .bank-indicator {
+    background-color: var(--success-color);
+    color: #1a1a2e;
+}
+
+.dark-mode .settlement-tips {
+    background-color: color-mix(in srgb, var(--container-bg) 90%, black);
+}
+
+/* Version badges in sheets list */
+.sheet-item .version-badge {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+.sheet-item .version-badge.new {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.sheet-item .version-badge.old {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+/* Mobile responsiveness for bank indicator */
+@media (max-width: 768px) {
+    .bank-indicator {
+        font-size: 0.7rem;
+        padding: 3px 8px;
+        margin-left: 5px;
+        margin-top: 5px;
+        display: inline-block;
+    }
+    
+    .settlement-first-line {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .settlement-summary {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+    
+    .settlement-tips {
+        padding: 12px;
+        font-size: 0.85rem;
+    }
+    
+    .sheet-item .version-badge {
+        font-size: 0.6rem;
+        padding: 1px 6px;
+        margin-left: 5px;
+    }
+}
+
+/* For very small screens */
+@media (max-width: 480px) {
+    .bank-indicator {
+        font-size: 0.65rem;
+        padding: 2px 6px;
+    }
+    
+    .settlement-summary > div {
+        padding: 8px 10px;
+    }
+}
+
+[file name]: style.css
+[file content begin]
+/* Add this to your existing style.css file, in the "Bank-Aware Settlement Styles" section or at the end */
+
+/* Version badges in sheets list */
+.sheet-item .version-badge {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+.sheet-item .version-badge.new {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.sheet-item .version-badge.old {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+/* Mobile responsiveness for version badges */
+@media (max-width: 768px) {
+    .sheet-item .version-badge {
+        font-size: 0.6rem;
+        padding: 1px 6px;
+        margin-left: 5px;
+    }
+}
+[file content end]

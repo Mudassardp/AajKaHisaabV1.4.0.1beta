@@ -1,5 +1,14 @@
+
 document.addEventListener('DOMContentLoaded', function() {
     // DOM Elements
+    const profileCardModal = document.getElementById('profileCardModal');
+    const closeProfileCardBtn = document.getElementById('closeProfileCardBtn');
+    const editProfileBtn = document.getElementById('editProfileBtn');
+    const saveProfileBtn = document.getElementById('saveProfileBtn');
+    const cancelEditProfileBtn = document.getElementById('cancelEditProfileBtn');
+    const profilePhotoUpload = document.getElementById('profilePhotoUpload');
+    const removeProfilePhotoBtn = document.getElementById('removeProfilePhotoBtn');
+
     const userStatus = document.getElementById('userStatus');
     const logoutBtn = document.getElementById('logoutBtn');
     const viewerTab = document.getElementById('viewerTab');
@@ -54,9 +63,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const editParticipantsList = document.getElementById('editParticipantsList');
     const totalMealsSummary = document.getElementById('totalMealsSummary');
     
-    // New Elements for Beta v1.5
+    // New Elements for Beta v1.5 & v1.6
     const themeToggleBtn = document.getElementById('themeToggle');
     const themeIcon = document.querySelector('.theme-icon');
+    
+    // Control Panel Elements (NEW for v1.6)
+    const controlPanelBtn = document.getElementById('controlPanelBtn');
+    const controlPanelModal = document.getElementById('controlPanelModal');
+    const closeControlPanelBtn = document.getElementById('closeControlPanelBtn');
+    const defaultParticipantsList = document.getElementById('defaultParticipantsList');
+    const controlPanelParticipantInput = document.getElementById('controlPanelParticipantInput');
+    const addDefaultParticipantBtn = document.getElementById('addDefaultParticipantBtn');
+    const totalSheetsCount = document.getElementById('totalSheetsCount');
+    const latestSheetDate = document.getElementById('latestSheetDate');
+    const newPasswordInput = document.getElementById('newPasswordInput');
+    const confirmPasswordInput = document.getElementById('confirmPasswordInput');
+    const changePasswordBtn = document.getElementById('changePasswordBtn');
     
     // Application State
     let selectedParticipants = [];
@@ -64,10 +86,13 @@ document.addEventListener('DOMContentLoaded', function() {
     let savedSheets = JSON.parse(localStorage.getItem('hisaabKitaabSheets')) || [];
     let isAdmin = false;
     let currentMode = 'viewer';
-    const ADMIN_PASSWORD = "226622";
+    let ADMIN_PASSWORD = "226622";
     
-    // Default participants
-    const defaultParticipants = [
+    // App Version
+    const APP_VERSION = "1.7";
+    
+    // Default participants (will be loaded from localStorage)
+    let defaultParticipants = [
         "Rizwan", "Aarif", "Abdul Razzaq", "Haris", "Mauzam", 
         "Masif", "Mudassar", "Shahid", "Mansoor Kotawdekar", 
         "Mansoor Wasta", "Mohsin", "Ubedulla", "Abdul Alim", "Sabir", "Aftab"
@@ -77,17 +102,68 @@ document.addEventListener('DOMContentLoaded', function() {
     initApp();
     
     function initApp() {
+        // Load default participants from localStorage
+        const savedDefaultParticipants = JSON.parse(localStorage.getItem('hisaabKitaabDefaultParticipants'));
+        if (savedDefaultParticipants) {
+            defaultParticipants = savedDefaultParticipants;
+        }
+        
+        // Load admin password from localStorage if exists
+        const savedPassword = localStorage.getItem('hisaabKitaabAdminPassword');
+        if (savedPassword) {
+            ADMIN_PASSWORD = savedPassword;
+        }
+        
+        // Check and upgrade existing sheets if needed
+        checkAndUpgradeSheets();
+        
         loadSavedSheets();
         setupEventListeners();
         checkAdminStatus();
         applyTheme(); // Apply saved theme
         
-        // NEW: Initialize Firebase sync
+        // Initialize Firebase sync
         setTimeout(() => {
             if (window.firebaseSync) {
                 window.firebaseSync.initialize();
             }
+            
+            // Initialize Profile Manager with delay to ensure DOM is ready
+            setTimeout(() => {
+                if (window.profileManager) {
+                    console.log('Initializing Profile Manager...');
+                    window.profileManager.initialize();
+                    // Pre-load participants for control panel
+                    loadDefaultParticipants();
+                } else {
+                    console.error('Profile Manager not loaded!');
+                }
+            }, 1500);
         }, 1000);
+    }
+    
+    // Check and upgrade existing sheets to add version tracking
+    function checkAndUpgradeSheets() {
+        let needsSaving = false;
+        
+        savedSheets.forEach(sheet => {
+            // Add version if missing (old sheets)
+            if (!sheet.version) {
+                sheet.version = "1.6"; // Old sheets were created before v1.7
+                needsSaving = true;
+                console.log(`Upgraded sheet "${sheet.name}" to version 1.6`);
+            }
+            
+            // Ensure bankSettlements field exists for compatibility
+            if (!sheet.bankSettlements) {
+                sheet.bankSettlements = {};
+                needsSaving = true;
+            }
+        });
+        
+        if (needsSaving) {
+            localStorage.setItem('hisaabKitaabSheets', JSON.stringify(savedSheets));
+        }
     }
     
     function setupEventListeners() {
@@ -103,6 +179,18 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Theme Toggle
         themeToggleBtn.addEventListener('click', toggleTheme);
+
+        // Profile Events
+        closeProfileCardBtn.addEventListener('click', () => window.profileManager?.hideProfileCard());
+        editProfileBtn.addEventListener('click', () => window.profileManager?.enterEditMode());
+        saveProfileBtn.addEventListener('click', () => window.profileManager?.saveEditedProfile());
+        cancelEditProfileBtn.addEventListener('click', () => window.profileManager?.exitEditMode());
+        profilePhotoUpload.addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                window.profileManager?.handlePhotoUpload(e.target.files[0]);
+            }
+        });
+        removeProfilePhotoBtn.addEventListener('click', () => window.profileManager?.handlePhotoRemoval());
 
         // Sync button
         document.getElementById('manualSyncBtn')?.addEventListener('click', () => {
@@ -136,6 +224,15 @@ document.addEventListener('DOMContentLoaded', function() {
         editParticipantsBtn.addEventListener('click', openEditParticipants);
         updateParticipantsBtn.addEventListener('click', updateParticipants);
         cancelEditBtn.addEventListener('click', cancelEditParticipants);
+        
+        // Control Panel Events (NEW for v1.6)
+        controlPanelBtn.addEventListener('click', showControlPanel);
+        closeControlPanelBtn.addEventListener('click', hideControlPanel);
+        addDefaultParticipantBtn.addEventListener('click', addDefaultParticipant);
+        controlPanelParticipantInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addDefaultParticipant();
+        });
+        changePasswordBtn.addEventListener('click', changeAdminPassword);
     }
     
     // Theme Functions
@@ -194,6 +291,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (savedAdminStatus === 'true') {
             isAdmin = true;
             userStatus.style.display = 'flex';
+            controlPanelBtn.style.display = 'inline-block';
             updateUIForAdmin();
         } else {
             isAdmin = false;
@@ -218,6 +316,7 @@ document.addEventListener('DOMContentLoaded', function() {
             isAdmin = true;
             localStorage.setItem('hisaabKitaabAdmin', 'true');
             userStatus.style.display = 'flex';
+            controlPanelBtn.style.display = 'inline-block';
             updateUIForAdmin();
             hideAdminLoginModal();
             alert('Admin login successful!');
@@ -232,6 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
         isAdmin = false;
         localStorage.removeItem('hisaabKitaabAdmin');
         userStatus.style.display = 'none';
+        controlPanelBtn.style.display = 'none';
         updateUIForAdminLogin();
         closeSheet();
         alert('Logged out successfully.');
@@ -246,6 +346,7 @@ document.addEventListener('DOMContentLoaded', function() {
         adminSheetActions.style.display = 'flex';
         closeSheetBtn.style.display = 'inline-block';
         totalMealsSummary.style.display = 'flex';
+        controlPanelBtn.style.display = 'inline-block';
         loadSavedSheets();
     }
     
@@ -293,15 +394,27 @@ document.addEventListener('DOMContentLoaded', function() {
         participantItem.className = 'participant';
         participantItem.style.borderLeft = '3px solid var(--primary-color)';
         
+        // Get profile photo HTML
+        const photoHTML = window.profileManager?.getProfilePhotoHTML(participantName, 'small') || '';
+        
         participantItem.innerHTML = `
-            <span class="participant-name">
-                ${participantName}
+            <span class="participant-name clickable-profile">
+                ${photoHTML}
+                <span>${participantName}</span>
             </span>
             <div class="checkbox-container">
                 <input type="checkbox" id="participant_${participantName.replace(/\s+/g, '_')}" 
                        value="${participantName}" checked>
             </div>
         `;
+        
+        // Add click event to show profile
+        const nameElement = participantItem.querySelector('.participant-name');
+        nameElement.addEventListener('click', (e) => {
+            if (!e.target.matches('input[type="checkbox"]')) {
+                window.profileManager?.showProfileCard(participantName, isAdmin && currentMode === 'admin');
+            }
+        });
         
         participantsList.appendChild(participantItem);
     }
@@ -345,7 +458,9 @@ document.addEventListener('DOMContentLoaded', function() {
             participants: selectedParticipants,
             expenses: {},
             settlements: {},
-            createdAt: new Date().toISOString()
+            bankSettlements: {}, // NEW: Track bank-aware settlements
+            createdAt: new Date().toISOString(),
+            version: APP_VERSION // Mark as new version sheet
         };
         
         selectedParticipants.forEach(participant => {
@@ -369,9 +484,20 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedParticipants.forEach(participant => {
             const row = document.createElement('tr');
             
-            // Participant Name
+            // Participant Name with Profile Photo
             const nameCell = document.createElement('td');
-            nameCell.innerHTML = `<span style="font-weight: 600;">${participant}</span>`;
+            const photoHTML = window.profileManager?.getProfilePhotoHTML(participant, 'small') || '';
+            nameCell.innerHTML = `
+                <div class="clickable-profile" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    ${photoHTML}
+                    <span style="font-weight: 600;">${participant}</span>
+                </div>
+            `;
+            
+            // Add click event to show profile
+            nameCell.querySelector('.clickable-profile').addEventListener('click', () => {
+                window.profileManager?.showProfileCard(participant, isAdmin && currentMode === 'admin');
+            });
             
             // Spent Amount
             const spentCell = document.createElement('td');
@@ -509,25 +635,198 @@ document.addEventListener('DOMContentLoaded', function() {
         generateSettlementSuggestions();
     }
     
-    function generateSettlementSuggestions() {
-        const creditors = [];
-        const debtors = [];
+    // NEW: Get banks from profile - FIXED to handle comma separation
+    function getParticipantBanks(participantName) {
+        if (!window.profileManager) return [];
         
-        selectedParticipants.forEach(participant => {
-            const balance = currentSheetData.expenses[participant].toBePaid;
-            if (balance < 0) {
-                creditors.push({ name: participant, amount: -balance });
-            } else if (balance > 0) {
-                debtors.push({ name: participant, amount: balance });
+        const profile = window.profileManager.getProfile(participantName);
+        if (!profile || !profile.bank) return [];
+        
+        // Split banks by comma and trim whitespace
+        const banks = profile.bank.split(',')
+            .map(bank => bank.trim())
+            .filter(bank => bank.length > 0)
+            .map(bank => bank.toLowerCase()); // Convert to lowercase for case-insensitive comparison
+        
+        return banks;
+    }
+    
+    // NEW: Check if two participants share any bank - FIXED
+    function shareSameBank(participant1, participant2) {
+        const banks1 = getParticipantBanks(participant1);
+        const banks2 = getParticipantBanks(participant2);
+        
+        if (banks1.length === 0 || banks2.length === 0) return false;
+        
+        // Check for any common bank (case-insensitive)
+        return banks1.some(bank1 => 
+            banks2.some(bank2 => bank1 === bank2)
+        );
+    }
+    
+    // NEW: Get common banks between two participants
+    function getCommonBanks(participant1, participant2) {
+        const banks1 = getParticipantBanks(participant1);
+        const banks2 = getParticipantBanks(participant2);
+        
+        if (banks1.length === 0 || banks2.length === 0) return [];
+        
+        // Find common banks
+        return banks1.filter(bank1 => banks2.includes(bank1));
+    }
+    
+    // Check if sheet should use bank-aware settlements
+    function shouldUseBankAwareSettlements() {
+        // Only use bank-aware settlements for sheets created with v1.7 or later
+        return currentSheetData && currentSheetData.version && 
+               parseFloat(currentSheetData.version) >= 1.7;
+    }
+    
+    // NEW: Improved Bank-aware settlement algorithm - FIXED
+    function generateBankAwareSettlements(creditors, debtors) {
+        const settlements = [];
+        
+        console.log("Starting bank-aware settlement calculation...");
+        console.log("Creditors:", creditors);
+        console.log("Debtors:", debtors);
+        
+        // Create mutable copies
+        let remainingCreditors = creditors.map(c => ({...c}));
+        let remainingDebtors = debtors.map(d => ({...d}));
+        
+        // Step 1: Process SAME BANK transfers first (MUST prioritize)
+        console.log("Step 1: Processing same-bank transfers...");
+        
+        // Create a list of all possible same-bank pairs
+        const sameBankPairs = [];
+        
+        for (let i = 0; i < remainingDebtors.length; i++) {
+            const debtor = remainingDebtors[i];
+            if (!debtor || debtor.amount <= 0.01) continue;
+            
+            for (let j = 0; j < remainingCreditors.length; j++) {
+                const creditor = remainingCreditors[j];
+                if (!creditor || creditor.amount <= 0.01) continue;
+                
+                if (shareSameBank(debtor.name, creditor.name)) {
+                    sameBankPairs.push({
+                        debtorIndex: i,
+                        creditorIndex: j,
+                        debtor: debtor,
+                        creditor: creditor,
+                        commonBanks: getCommonBanks(debtor.name, creditor.name)
+                    });
+                }
             }
-        });
+        }
         
+        console.log("Found same-bank pairs:", sameBankPairs);
+        
+        // Process same-bank pairs
+        for (const pair of sameBankPairs) {
+            const { debtorIndex, creditorIndex, debtor, creditor } = pair;
+            
+            // Check if amounts are still valid
+            if (remainingDebtors[debtorIndex]?.amount <= 0.01 || 
+                remainingCreditors[creditorIndex]?.amount <= 0.01) {
+                continue;
+            }
+            
+            const settlementAmount = Math.min(debtor.amount, creditor.amount);
+            
+            if (settlementAmount > 0.01) {
+                const settlementKey = `${debtor.name}_to_${creditor.name}`;
+                
+                settlements.push({
+                    from: debtor.name,
+                    to: creditor.name,
+                    amount: settlementAmount.toFixed(2),
+                    key: settlementKey,
+                    status: currentSheetData.settlements && currentSheetData.settlements[settlementKey] 
+                           ? currentSheetData.settlements[settlementKey].status 
+                           : 'not-paid',
+                    sameBank: true,
+                    commonBanks: getCommonBanks(debtor.name, creditor.name)
+                });
+                
+                console.log(`Same-bank settlement: ${debtor.name} -> ${creditor.name}: ${settlementAmount} SAR`);
+                
+                // Update amounts
+                remainingDebtors[debtorIndex].amount -= settlementAmount;
+                remainingCreditors[creditorIndex].amount -= settlementAmount;
+                
+                // Remove if amount is negligible
+                if (remainingDebtors[debtorIndex].amount < 0.01) {
+                    remainingDebtors[debtorIndex].amount = 0;
+                }
+                if (remainingCreditors[creditorIndex].amount < 0.01) {
+                    remainingCreditors[creditorIndex].amount = 0;
+                }
+            }
+        }
+        
+        // Filter out zero amounts
+        remainingCreditors = remainingCreditors.filter(c => c.amount > 0.01);
+        remainingDebtors = remainingDebtors.filter(d => d.amount > 0.01);
+        
+        console.log("After same-bank settlements:");
+        console.log("Remaining Creditors:", remainingCreditors);
+        console.log("Remaining Debtors:", remainingDebtors);
+        
+        // Step 2: Process remaining amounts (regular settlement)
+        console.log("Step 2: Processing remaining amounts...");
+        
+        remainingCreditors.sort((a, b) => b.amount - a.amount);
+        remainingDebtors.sort((a, b) => b.amount - a.amount);
+        
+        let i = 0, j = 0;
+        while (i < remainingCreditors.length && j < remainingDebtors.length) {
+            const creditor = remainingCreditors[i];
+            const debtor = remainingDebtors[j];
+            const settlementAmount = Math.min(creditor.amount, debtor.amount);
+            
+            if (settlementAmount > 0.01) {
+                const settlementKey = `${debtor.name}_to_${creditor.name}`;
+                const sameBank = shareSameBank(debtor.name, creditor.name);
+                
+                settlements.push({
+                    from: debtor.name,
+                    to: creditor.name,
+                    amount: settlementAmount.toFixed(2),
+                    key: settlementKey,
+                    status: currentSheetData.settlements && currentSheetData.settlements[settlementKey] 
+                           ? currentSheetData.settlements[settlementKey].status 
+                           : 'not-paid',
+                    sameBank: sameBank,
+                    commonBanks: sameBank ? getCommonBanks(debtor.name, creditor.name) : []
+                });
+                
+                console.log(`${sameBank ? 'Same-bank' : 'Regular'} settlement: ${debtor.name} -> ${creditor.name}: ${settlementAmount} SAR`);
+                
+                creditor.amount -= settlementAmount;
+                debtor.amount -= settlementAmount;
+                
+                if (creditor.amount < 0.01) i++;
+                if (debtor.amount < 0.01) j++;
+            } else {
+                if (creditor.amount <= debtor.amount) i++;
+                else j++;
+            }
+        }
+        
+        console.log("Final settlements:", settlements);
+        return settlements;
+    }
+    
+    // OLD: Original settlement algorithm (pre v1.7)
+    function generateOldSettlements(creditors, debtors) {
+        const settlements = [];
+        
+        // Simple settlement algorithm (old version)
         creditors.sort((a, b) => b.amount - a.amount);
         debtors.sort((a, b) => b.amount - a.amount);
         
-        const settlements = [];
         let i = 0, j = 0;
-        
         while (i < creditors.length && j < debtors.length) {
             const creditor = creditors[i];
             const debtor = debtors[j];
@@ -543,7 +842,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     key: settlementKey,
                     status: currentSheetData.settlements && currentSheetData.settlements[settlementKey] 
                            ? currentSheetData.settlements[settlementKey].status 
-                           : 'not-paid'
+                           : 'not-paid',
+                    sameBank: false,
+                    commonBanks: []
                 });
                 
                 creditor.amount -= settlementAmount;
@@ -557,15 +858,58 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
+        return settlements;
+    }
+    
+    function generateSettlementSuggestions() {
+        const creditors = [];
+        const debtors = [];
+        
+        selectedParticipants.forEach(participant => {
+            const balance = currentSheetData.expenses[participant].toBePaid;
+            if (balance < 0) {
+                creditors.push({ name: participant, amount: -balance });
+            } else if (balance > 0) {
+                debtors.push({ name: participant, amount: balance });
+            }
+        });
+        
+        console.log("Generating settlements for:");
+        console.log("Creditors (receiving money):", creditors);
+        console.log("Debtors (owing money):", debtors);
+        console.log("Sheet version:", currentSheetData?.version);
+        
+        let settlements = [];
+        
+        // Choose settlement algorithm based on sheet version
+        if (shouldUseBankAwareSettlements()) {
+            console.log("Using BANK-AWARE settlement algorithm (v1.7+)");
+            settlements = generateBankAwareSettlements(creditors, debtors);
+        } else {
+            console.log("Using OLD settlement algorithm (pre v1.7)");
+            settlements = generateOldSettlements(creditors, debtors);
+        }
+        
         // Store settlements in currentSheetData
         currentSheetData.settlements = {};
+        currentSheetData.bankSettlements = {}; // Reset bank settlements
+        
         settlements.forEach(settlement => {
             currentSheetData.settlements[settlement.key] = {
                 from: settlement.from,
                 to: settlement.to,
                 amount: settlement.amount,
-                status: settlement.status
+                status: settlement.status,
+                sameBank: settlement.sameBank || false,
+                commonBanks: settlement.commonBanks || []
             };
+            
+            // Track bank-aware settlements separately
+            if (settlement.sameBank) {
+                currentSheetData.bankSettlements[settlement.key] = {
+                    banks: settlement.commonBanks || []
+                };
+            }
         });
         
         renderSettlementList(settlements);
@@ -573,76 +917,158 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function renderSettlementList(settlements) {
         settlementList.innerHTML = '';
+        
         if (settlements.length === 0) {
             settlementList.innerHTML = '<div class="no-settlements">All balances are settled! 🎉</div>';
-        } else {
-            settlements.forEach(settlement => {
-                const settlementItem = document.createElement('div');
-                settlementItem.className = 'settlement-item';
-                
-                // Check if we're in admin mode AND the user is logged in as admin
-                const showAdminControls = isAdmin && currentMode === 'admin';
-                
-                if (showAdminControls) {
-                    // Admin mode with toggle button
-                    const isPaid = settlement.status === 'paid';
-                    const statusClass = isPaid ? 'paid' : 'not-paid';
-                    const statusText = isPaid ? 'Paid' : 'Not Paid';
-                    
-                    settlementItem.innerHTML = `
-                        <div class="settlement-details">
-                            <div class="settlement-first-line">
-                                <span class="settlement-from" style="font-weight: 600;">${settlement.from}</span>
-                                <span class="settlement-arrow">→</span>
-                                <span class="settlement-to" style="font-weight: 600;">${settlement.to}</span>
-                            </div>
-                            <div class="settlement-second-line">
-                                <span class="settlement-amount">${settlement.amount} SAR</span>
-                                <button class="settlement-toggle-btn ${statusClass}" data-key="${settlement.key}">
-                                    ${statusText}
-                                </button>
-                            </div>
+            return;
+        }
+        
+        // Only show bank-aware summary for new version sheets
+        const isNewVersion = shouldUseBankAwareSettlements();
+        
+        // Count same-bank settlements
+        const sameBankCount = settlements.filter(s => s.sameBank).length;
+        const differentBankCount = settlements.length - sameBankCount;
+        
+        // Add summary header only for new version sheets with same-bank settlements
+        if (isNewVersion && sameBankCount > 0) {
+            const summaryHeader = document.createElement('div');
+            summaryHeader.className = 'settlement-summary';
+            summaryHeader.innerHTML = `
+                <div style="background-color: var(--success-color); color: white; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                        <span style="font-size: 1.2rem;">🏦</span>
+                        <strong style="font-size: 1.1rem;">Bank-Aware Settlement Priority</strong>
+                    </div>
+                    <div style="font-size: 0.9rem;">
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <span style="background-color: rgba(255,255,255,0.3); padding: 3px 10px; border-radius: 12px;">
+                                ✅ ${sameBankCount} Same-Bank Transfers
+                            </span>
+                            <span style="background-color: rgba(255,255,255,0.3); padding: 3px 10px; border-radius: 12px;">
+                                🔄 ${differentBankCount} Other Transfers
+                            </span>
                         </div>
-                    `;
-                    
-                    const toggleBtn = settlementItem.querySelector('.settlement-toggle-btn');
-                    toggleBtn.addEventListener('click', function() {
-                        const newStatus = currentSheetData.settlements[this.dataset.key].status === 'paid' ? 'not-paid' : 'paid';
-                        currentSheetData.settlements[this.dataset.key].status = newStatus;
-                        
-                        // Update button appearance
-                        if (newStatus === 'paid') {
-                            this.className = 'settlement-toggle-btn paid';
-                            this.textContent = 'Paid';
-                        } else {
-                            this.className = 'settlement-toggle-btn not-paid';
-                            this.textContent = 'Not Paid';
-                        }
-                        
-                        saveSheet();
-                    });
-                } else {
-                    // Viewer mode or admin in viewer tab - show static status
-                    const statusClass = settlement.status === 'paid' ? 'status-paid' : 'status-not-paid';
-                    const statusText = settlement.status === 'paid' ? 'Paid' : 'Not Paid';
-                    
-                    settlementItem.innerHTML = `
-                        <div class="settlement-details">
-                            <div class="settlement-first-line">
-                                <span class="settlement-from" style="font-weight: 600;">${settlement.from}</span>
-                                <span class="settlement-arrow">→</span>
-                                <span class="settlement-to" style="font-weight: 600;">${settlement.to}</span>
-                            </div>
-                            <div class="settlement-second-line">
-                                <span class="settlement-amount">${settlement.amount} SAR</span>
-                                <span class="settlement-status ${statusClass}">${statusText}</span>
-                            </div>
+                        <div style="margin-top: 8px; font-style: italic;">
+                            Same-bank transfers are prioritized for easier and potentially fee-free transactions
                         </div>
-                    `;
-                }
+                    </div>
+                </div>
+            `;
+            settlementList.appendChild(summaryHeader);
+        }
+        
+        settlements.forEach(settlement => {
+            const settlementItem = document.createElement('div');
+            settlementItem.className = 'settlement-item';
+            
+            // Add bank indicator for new version sheets only
+            if (isNewVersion && settlement.sameBank) {
+                settlementItem.style.borderLeft = '4px solid var(--success-color)';
+                settlementItem.style.backgroundColor = 'color-mix(in srgb, var(--success-color) 10%, transparent)';
+            }
+            
+            // Check if we're in admin mode AND the user is logged in as admin
+            const showAdminControls = isAdmin && currentMode === 'admin';
+            
+            // Get bank information for display (only for new version sheets)
+            const commonBanks = settlement.commonBanks || [];
+            const bankInfo = commonBanks.length > 0 ? 
+                `(${commonBanks.map(b => b.charAt(0).toUpperCase() + b.slice(1)).join(', ')})` : 
+                '';
+            
+            if (showAdminControls) {
+                // Admin mode with toggle button
+                const isPaid = settlement.status === 'paid';
+                const statusClass = isPaid ? 'paid' : 'not-paid';
+                const statusText = isPaid ? 'Paid' : 'Not Paid';
                 
-                settlementList.appendChild(settlementItem);
-            });
+                settlementItem.innerHTML = `
+                    <div class="settlement-details">
+                        <div class="settlement-first-line">
+                            <span class="settlement-from" style="font-weight: 600;">${settlement.from}</span>
+                            <span class="settlement-arrow">→</span>
+                            <span class="settlement-to" style="font-weight: 600;">${settlement.to}</span>
+                            ${isNewVersion && settlement.sameBank ? 
+                                `<span class="bank-indicator" title="Same Bank Transfer - ${bankInfo}" style="margin-left: 10px;">
+                                    🏦 Same Bank ${bankInfo}
+                                </span>` : 
+                                ''
+                            }
+                        </div>
+                        <div class="settlement-second-line">
+                            <span class="settlement-amount">${settlement.amount} SAR</span>
+                            <button class="settlement-toggle-btn ${statusClass}" data-key="${settlement.key}">
+                                ${statusText}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                const toggleBtn = settlementItem.querySelector('.settlement-toggle-btn');
+                toggleBtn.addEventListener('click', function() {
+                    const newStatus = currentSheetData.settlements[this.dataset.key].status === 'paid' ? 'not-paid' : 'paid';
+                    currentSheetData.settlements[this.dataset.key].status = newStatus;
+                    
+                    // Update button appearance
+                    if (newStatus === 'paid') {
+                        this.className = 'settlement-toggle-btn paid';
+                        this.textContent = 'Paid';
+                    } else {
+                        this.className = 'settlement-toggle-btn not-paid';
+                        this.textContent = 'Not Paid';
+                    }
+                    
+                    saveSheet();
+                });
+            } else {
+                // Viewer mode or admin in viewer tab - show static status
+                const statusClass = settlement.status === 'paid' ? 'status-paid' : 'status-not-paid';
+                const statusText = settlement.status === 'paid' ? 'Paid' : 'Not Paid';
+                
+                settlementItem.innerHTML = `
+                    <div class="settlement-details">
+                        <div class="settlement-first-line">
+                            <span class="settlement-from" style="font-weight: 600;">${settlement.from}</span>
+                            <span class="settlement-arrow">→</span>
+                            <span class="settlement-to" style="font-weight: 600;">${settlement.to}</span>
+                            ${isNewVersion && settlement.sameBank ? 
+                                `<span class="bank-indicator" title="Same Bank Transfer - ${bankInfo}" style="margin-left: 10px;">
+                                    🏦 Same Bank ${bankInfo}
+                                </span>` : 
+                                ''
+                            }
+                        </div>
+                        <div class="settlement-second-line">
+                            <span class="settlement-amount">${settlement.amount} SAR</span>
+                            <span class="settlement-status ${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            settlementList.appendChild(settlementItem);
+        });
+        
+        // Add settlement tips only for new version sheets
+        if (isNewVersion) {
+            const tipsSection = document.createElement('div');
+            tipsSection.className = 'settlement-tips';
+            tipsSection.innerHTML = `
+                <div style="margin-top: 20px; padding: 12px; background-color: var(--hover-bg); border-radius: 8px; border-left: 4px solid var(--info-color); font-size: 0.9rem;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: var(--info-color);">
+                        <span style="font-size: 1.1rem;">💡</span>
+                        <strong>Settlement Tips:</strong>
+                    </div>
+                    <ul style="margin: 0 0 0 20px; padding: 0; color: var(--secondary-color);">
+                        <li><strong>Same-bank transfers</strong> are usually instant and may have lower fees</li>
+                        <li>Mark settlements as "Paid" once completed to track progress</li>
+                        <li>Consider using mobile banking apps for quick transfers</li>
+                        <li>Keep transaction references for record keeping</li>
+                    </ul>
+                </div>
+            `;
+            settlementList.appendChild(tipsSection);
         }
     }
     
@@ -891,9 +1317,36 @@ document.addEventListener('DOMContentLoaded', function() {
                           sheet.date ? formatDateTime(new Date(sheet.date)) : 
                           formatDateTime(new Date(sheet.createdAt));
         
+        // Create participants list with profile photos
+        let participantsHTML = '';
+        const participants = sheet.participants || [];
+        participants.slice(0, 3).forEach(participant => {
+            const photoHTML = window.profileManager?.getProfilePhotoHTML(participant, 'small') || '';
+            participantsHTML += `<span class="sheet-participant">${photoHTML}</span>`;
+        });
+        
+        if (participants.length > 3) {
+            participantsHTML += `<span class="more-participants">+${participants.length - 3} more</span>`;
+        }
+        
+        // Add version badge
+        const sheetVersion = sheet.version || "1.6";
+        const versionBadgeClass = parseFloat(sheetVersion) >= 1.7 ? 'new' : 'old';
+        const versionText = parseFloat(sheetVersion) >= 1.7 ? 'v1.7+' : 'v1.6';
+        
         sheetInfo.innerHTML = `
-            <strong>${sheet.name}</strong>
-            <div class="sheet-date">Updated: ${displayDate}</div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <strong>${sheet.name}</strong>
+                        <span class="version-badge ${versionBadgeClass}" title="Sheet version: ${sheetVersion}">${versionText}</span>
+                    </div>
+                    <div class="sheet-date">Updated: ${displayDate}</div>
+                    <div class="sheet-participants" style="margin-top: 5px; display: flex; gap: 5px; flex-wrap: wrap;">
+                        ${participantsHTML}
+                    </div>
+                </div>
+            </div>
         `;
         
         const sheetActions = document.createElement('div');
@@ -1105,6 +1558,219 @@ document.addEventListener('DOMContentLoaded', function() {
         if (loadingOverlay) {
             loadingOverlay.style.display = 'none';
         }
+    }
+    
+    // ==================== CONTROL PANEL FUNCTIONS (NEW for v1.6) ====================
+    
+    function showControlPanel() {
+        if (!isAdmin) return;
+        
+        console.log('Opening Control Panel...');
+        
+        // Load default participants
+        loadDefaultParticipants();
+        
+        // Load sheet summary
+        updateSheetSummary();
+        
+        // Clear password fields
+        newPasswordInput.value = '';
+        confirmPasswordInput.value = '';
+        
+        controlPanelModal.style.display = 'flex';
+    }
+    
+    function hideControlPanel() {
+        controlPanelModal.style.display = 'none';
+    }
+    
+    function loadDefaultParticipants() {
+        const defaultParticipantsList = document.getElementById('defaultParticipantsList');
+        if (!defaultParticipantsList) {
+            console.error('defaultParticipantsList element not found!');
+            return;
+        }
+        
+        console.log('Loading default participants...');
+        
+        // Get participants from localStorage or use default
+        const participants = JSON.parse(localStorage.getItem('hisaabKitaabDefaultParticipants')) || defaultParticipants;
+        console.log('Participants to display:', participants);
+        
+        // Clear the list
+        defaultParticipantsList.innerHTML = '';
+        
+        if (participants.length === 0) {
+            defaultParticipantsList.innerHTML = '<li style="text-align: center; color: var(--secondary-color); padding: 20px;">No default participants added yet.</li>';
+            return;
+        }
+        
+        // Add each participant
+        participants.forEach(participant => {
+            const participantItem = document.createElement('li');
+            participantItem.className = 'default-participant-item';
+            
+            // Get profile photo HTML if profile manager exists
+            let photoHTML = '';
+            if (window.profileManager && window.profileManager.getProfilePhotoHTML) {
+                photoHTML = window.profileManager.getProfilePhotoHTML(participant, 'small');
+            } else {
+                // Fallback photo
+                const initials = participant.charAt(0).toUpperCase();
+                photoHTML = `<div class="profile-photo-initials" style="width: 30px; height: 30px; background-color: #3498db; color: white; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; font-size: 14px;">${initials}</div>`;
+            }
+            
+            participantItem.innerHTML = `
+                <div class="default-participant-info clickable-profile" data-name="${participant}">
+                    ${photoHTML}
+                    <span class="default-participant-name">${participant}</span>
+                </div>
+                <div class="default-participant-actions">
+                    <button class="edit-profile-btn" data-name="${participant}" title="Edit Profile">✏️</button>
+                    <button class="remove-default-participant-btn" data-name="${participant}" title="Remove Participant">🗑️</button>
+                </div>
+            `;
+            
+            // Add click event to profile info
+            const profileInfo = participantItem.querySelector('.default-participant-info');
+            profileInfo.addEventListener('click', (e) => {
+                if (!e.target.matches('button')) {
+                    if (window.profileManager && window.profileManager.showProfileCard) {
+                        window.profileManager.showProfileCard(participant, true);
+                    } else {
+                        alert(`Profile for: ${participant}\n\nNote: Profile Manager not fully loaded.`);
+                    }
+                }
+            });
+            
+            // Add click event to edit button
+            const editBtn = participantItem.querySelector('.edit-profile-btn');
+            editBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (window.profileManager && window.profileManager.showProfileCard) {
+                    window.profileManager.showProfileCard(participant, true);
+                } else {
+                    alert(`Edit profile for: ${participant}\n\nNote: Profile Manager not fully loaded.`);
+                }
+            });
+            
+            // Add click event to remove button
+            const removeBtn = participantItem.querySelector('.remove-default-participant-btn');
+            removeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeDefaultParticipant(participant);
+            });
+            
+            defaultParticipantsList.appendChild(participantItem);
+        });
+    }
+    
+    function addDefaultParticipant() {
+        const name = controlPanelParticipantInput.value.trim();
+        
+        if (!name) {
+            alert('Please enter a participant name');
+            return;
+        }
+        
+        const participants = JSON.parse(localStorage.getItem('hisaabKitaabDefaultParticipants')) || defaultParticipants;
+        
+        if (participants.includes(name)) {
+            alert('This participant already exists in the default list');
+            return;
+        }
+        
+        participants.push(name);
+        localStorage.setItem('hisaabKitaabDefaultParticipants', JSON.stringify(participants));
+        
+        controlPanelParticipantInput.value = '';
+        
+        // Update the defaultParticipants array used in the app
+        defaultParticipants = participants;
+        
+        // Update UI
+        loadDefaultParticipants();
+        
+        alert(`"${name}" added to default participants list`);
+    }
+    
+    function removeDefaultParticipant(name) {
+        if (!confirm(`Remove "${name}" from default participants list?`)) {
+            return;
+        }
+        
+        let participants = JSON.parse(localStorage.getItem('hisaabKitaabDefaultParticipants')) || defaultParticipants;
+        participants = participants.filter(p => p !== name);
+        
+        localStorage.setItem('hisaabKitaabDefaultParticipants', JSON.stringify(participants));
+        
+        // Update the defaultParticipants array used in the app
+        defaultParticipants = participants;
+        
+        // Update the list
+        loadDefaultParticipants();
+        
+        alert(`"${name}" removed from default participants list`);
+    }
+    
+    function updateSheetSummary() {
+        const savedSheets = JSON.parse(localStorage.getItem('hisaabKitaabSheets')) || [];
+        
+        totalSheetsCount.textContent = savedSheets.length;
+        
+        if (savedSheets.length > 0) {
+            // Sort by creation date and get the latest
+            const sortedSheets = [...savedSheets].sort((a, b) => 
+                new Date(b.createdAt || b.date || 0) - new Date(a.createdAt || a.date || 0)
+            );
+            
+            const latestSheet = sortedSheets[0];
+            const latestDate = latestSheet.lastUpdated || latestSheet.date || latestSheet.createdAt;
+            
+            if (latestDate) {
+                const date = new Date(latestDate);
+                latestSheetDate.textContent = date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            } else {
+                latestSheetDate.textContent = 'Unknown';
+            }
+        } else {
+            latestSheetDate.textContent = 'None';
+        }
+    }
+    
+    function changeAdminPassword() {
+        const newPassword = newPasswordInput.value.trim();
+        const confirmPassword = confirmPasswordInput.value.trim();
+        
+        if (!newPassword || !confirmPassword) {
+            alert('Please fill in both password fields');
+            return;
+        }
+        
+        if (newPassword.length < 6) {
+            alert('Password must be at least 6 characters long');
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            alert('Passwords do not match');
+            return;
+        }
+        
+        // Update the ADMIN_PASSWORD variable
+        localStorage.setItem('hisaabKitaabAdminPassword', newPassword);
+        
+        // Update the current session password
+        ADMIN_PASSWORD = newPassword;
+        
+        newPasswordInput.value = '';
+        confirmPasswordInput.value = '';
+        
+        alert('Admin password changed successfully!');
     }
     
     // Make functions available globally for PDF generator

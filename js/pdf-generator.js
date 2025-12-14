@@ -1,27 +1,62 @@
+
 // PDF Generator for HisaabKitaab
 (function() {
     'use strict';
-    
-    // Main PDF generation function
-    window.generateExpensePDF = function(currentSheetData, selectedParticipants, isAdmin) {
-        if (!currentSheetData) {
-            alert('No sheet data available');
-            return;
-        }
-        
-        // Show loading
+
+    const PDF_APP_VERSION = "1.7";
+
+    function generateExpensePDF(sheetData, participants, isAdmin) {
+        // Show loading overlay
         if (window.showPDFLoading) {
             window.showPDFLoading();
         }
         
         try {
+            // Check sheet version
+            const sheetVersion = sheetData.version || "1.6";
+            const isNewVersion = parseFloat(sheetVersion) >= 1.7;
+            
+            // Helper function to get participant banks
+            const getParticipantBanks = (name) => {
+                if (!window.profileManager) return [];
+                const profile = window.profileManager.getProfile(name);
+                if (!profile || !profile.bank) return [];
+                return profile.bank.split(',').map(b => b.trim()).filter(b => b.length > 0);
+            };
+            
+            // Get bank info for each settlement (only for new version sheets)
+            const settlementsWithBankInfo = [];
+            if (sheetData.settlements) {
+                Object.values(sheetData.settlements).forEach(settlement => {
+                    let sameBank = false;
+                    let commonBanks = [];
+                    
+                    if (isNewVersion) {
+                        const debtorBanks = getParticipantBanks(settlement.from);
+                        const creditorBanks = getParticipantBanks(settlement.to);
+                        
+                        // Check if they share any bank
+                        sameBank = debtorBanks.some(bank => creditorBanks.includes(bank));
+                        if (sameBank) {
+                            commonBanks = debtorBanks.filter(bank => creditorBanks.includes(bank));
+                        }
+                    }
+                    
+                    settlementsWithBankInfo.push({
+                        ...settlement,
+                        sameBank: sameBank,
+                        commonBanks: commonBanks
+                    });
+                });
+            }
+            
             // Create PDF content
-            const pdfContent = createPDFContent(currentSheetData, selectedParticipants, isAdmin);
+            const pdfContent = createPDFContent(sheetData, participants, isAdmin, isNewVersion, settlementsWithBankInfo);
             
             // Generate PDF options
             const opt = {
                 margin: [10, 10, 10, 10],
-                filename: `${currentSheetData.name.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
+                filename: `${sheetData.name.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { 
                     scale: 2,
@@ -70,9 +105,9 @@
                 window.hidePDFLoading();
             }
         }
-    };
+    }
     
-    function createPDFContent(currentSheetData, selectedParticipants, isAdmin) {
+    function createPDFContent(sheetData, participants, isAdmin, isNewVersion, settlementsWithBankInfo) {
         // Create container
         const pdfContainer = document.createElement('div');
         pdfContainer.style.cssText = `
@@ -86,14 +121,14 @@
         `;
         
         // Calculate totals if not already calculated
-        let totalSpent = currentSheetData.totalSpent || 0;
-        let totalMeals = currentSheetData.totalMeals || 0;
-        let costPerMeal = currentSheetData.costPerMeal || 0;
+        let totalSpent = sheetData.totalSpent || 0;
+        let totalMeals = sheetData.totalMeals || 0;
+        let costPerMeal = sheetData.costPerMeal || 0;
         
-        if (!currentSheetData.totalSpent) {
-            selectedParticipants.forEach(participant => {
-                totalSpent += currentSheetData.expenses[participant].spent || 0;
-                totalMeals += currentSheetData.expenses[participant].meals || 0;
+        if (!sheetData.totalSpent) {
+            participants.forEach(participant => {
+                totalSpent += sheetData.expenses[participant].spent || 0;
+                totalMeals += sheetData.expenses[participant].meals || 0;
             });
             costPerMeal = totalMeals > 0 ? totalSpent / totalMeals : 0;
         }
@@ -113,23 +148,26 @@
             });
         }
         
-        const displayDate = currentSheetData.lastUpdated ? 
-                          formatDateTime(currentSheetData.lastUpdated) : 
-                          currentSheetData.date ? 
-                          formatDateTime(currentSheetData.date) : 
-                          formatDateTime(currentSheetData.createdAt);
+        const displayDate = sheetData.lastUpdated ? 
+                          formatDateTime(sheetData.lastUpdated) : 
+                          sheetData.date ? 
+                          formatDateTime(sheetData.date) : 
+                          formatDateTime(sheetData.createdAt);
         
         // Header Section
         const header = `
-    <div style="text-align: center; border-bottom: 2px solid #3498db; padding-bottom: 15px; margin-bottom: 20px; page-break-after: avoid;">
-        <h1 style="color: #2c3e50; font-size: 24px; margin-bottom: 5px; font-weight: bold;">HisaabKitaabApp</h1>
-        <p style="color: #7f8c8d; font-size: 14px; margin-bottom: 15px;">Weekly Expense Split</p>
-        <div style="display: flex; justify-content: space-between; align-items: center; background-color: #f8f9fa; padding: 10px 15px; border-radius: 5px; border-left: 4px solid #3498db;">
-            <strong style="color: #2c3e50; font-size: 16px;">${currentSheetData.name || 'Unnamed Sheet'}</strong>
-            <span style="color: #7f8c8d; font-size: 12px;">Updated: ${displayDate}</span>
-        </div>
-    </div>
-`;
+            <div style="text-align: center; border-bottom: 2px solid #3498db; padding-bottom: 15px; margin-bottom: 20px; page-break-after: avoid;">
+                <h1 style="color: #2c3e50; font-size: 24px; margin-bottom: 5px; font-weight: bold;">HisaabKitaabApp</h1>
+                <p style="color: #7f8c8d; font-size: 14px; margin-bottom: 15px;">Weekly Expense Split</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; background-color: #f8f9fa; padding: 10px 15px; border-radius: 5px; border-left: 4px solid #3498db;">
+                    <div>
+                        <strong style="color: #2c3e50; font-size: 16px;">${sheetData.name || 'Unnamed Sheet'}</strong>
+                        <div style="color: #7f8c8d; font-size: 12px; margin-top: 5px;">Sheet Version: ${sheetData.version || '1.6'}</div>
+                    </div>
+                    <span style="color: #7f8c8d; font-size: 12px;">Updated: ${displayDate}</span>
+                </div>
+            </div>
+        `;
         
         // Summary Section
         let summarySection = `
@@ -138,7 +176,7 @@
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
                     <tr>
                         <td style="padding: 6px 8px; border-bottom: 1px solid #eaeaea; font-weight: 600; color: #2c3e50; width: 60%;">Total Participants:</td>
-                        <td style="padding: 6px 8px; border-bottom: 1px solid #eaeaea; text-align: right; font-weight: bold; color: #2c3e50;">${selectedParticipants.length}</td>
+                        <td style="padding: 6px 8px; border-bottom: 1px solid #eaeaea; text-align: right; font-weight: bold; color: #2c3e50;">${participants.length}</td>
                     </tr>
                     <tr>
                         <td style="padding: 6px 8px; border-bottom: 1px solid #eaeaea; font-weight: 600; color: #2c3e50;">Total Spent:</td>
@@ -180,8 +218,8 @@
                     <tbody>
         `;
         
-        selectedParticipants.forEach(participant => {
-            const expense = currentSheetData.expenses[participant] || { spent: 0, meals: 3, toBePaid: 0 };
+        participants.forEach(participant => {
+            const expense = sheetData.expenses[participant] || { spent: 0, meals: 3, toBePaid: 0 };
             const mealsDisplay = expense.meals === 3 ? 'All Meals' : `${expense.meals} Meal${expense.meals > 1 ? 's' : ''}`;
             const toBePaidColor = expense.toBePaid > 0 ? '#e74c3c' : expense.toBePaid < 0 ? '#27ae60' : '#2c3e50';
             const toBePaidSign = expense.toBePaid > 0 ? '+' : '';
@@ -215,7 +253,8 @@
                 <h2 style="color: #2c3e50; font-size: 18px; margin-bottom: 10px; border-bottom: 1px solid #eaeaea; padding-bottom: 5px; font-weight: bold;">Settlement Instructions</h2>
         `;
         
-        const settlements = currentSheetData.settlements ? Object.values(currentSheetData.settlements) : [];
+        const settlements = settlementsWithBankInfo.length > 0 ? settlementsWithBankInfo : 
+                          (sheetData.settlements ? Object.values(sheetData.settlements) : []);
         
         if (settlements.length === 0) {
             settlementsSection += `
@@ -224,10 +263,27 @@
                 </div>
             `;
         } else {
+            // Add note about settlement algorithm
+            if (isNewVersion) {
+                settlementsSection += `
+                    <div style="background-color: #e8f6f3; color: #155724; padding: 8px 12px; border-radius: 5px; border-left: 4px solid #27ae60; margin-bottom: 15px; font-size: 12px;">
+                        <strong>Note:</strong> This sheet uses bank-aware settlement algorithm (v${sheetData.version || '1.7'}). 
+                        Same-bank transfers are prioritized for easier transactions.
+                    </div>
+                `;
+            }
+            
             settlements.forEach(settlement => {
                 const statusColor = settlement.status === 'paid' ? '#27ae60' : '#e74c3c';
                 const statusBg = settlement.status === 'paid' ? '#e8f6f3' : '#fdedec';
                 const statusText = settlement.status === 'paid' ? 'Paid' : 'Not Paid';
+                
+                // Add bank indicator for new version sheets
+                let bankIndicator = '';
+                if (isNewVersion && settlement.sameBank && settlement.commonBanks && settlement.commonBanks.length > 0) {
+                    const bankNames = settlement.commonBanks.map(b => b.charAt(0).toUpperCase() + b.slice(1)).join(', ');
+                    bankIndicator = `<span style="font-size: 10px; color: #27ae60; background-color: #e8f6f3; padding: 2px 6px; border-radius: 3px; margin-left: 8px; border: 1px solid #27ae60;">🏦 ${bankNames}</span>`;
+                }
                 
                 settlementsSection += `
                     <div style="background-color: #f8f9fa; padding: 10px 12px; margin-bottom: 6px; border-radius: 5px; border-left: 3px solid #9b59b6; page-break-inside: avoid;">
@@ -236,6 +292,7 @@
                                 <span>${settlement.from}</span>
                                 <span style="color: #7f8c8d;">→</span>
                                 <span>${settlement.to}</span>
+                                ${bankIndicator}
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <span style="font-weight: bold; color: #2c3e50; background-color: #e8f4fc; padding: 4px 8px; border-radius: 3px; border: 1px solid #3498db; font-size: 12px;">
@@ -254,11 +311,11 @@
         settlementsSection += `</div>`;
         
         // Footer
-    const footer = `
-    <div style="text-align: center; margin-top: 25px; padding-top: 12px; border-top: 1px solid #eaeaea; color: #7f8c8d; font-size: 8px;">
-        <p>Generated with HisaabKitaabApp (created by Mudassar) • ${new Date().toLocaleString()} • Beta-v1.5</p>
-    </div>
-`;
+        const footer = `
+            <div style="text-align: center; margin-top: 25px; padding-top: 12px; border-top: 1px solid #eaeaea; color: #7f8c8d; font-size: 8px;">
+                <p>Generated with HisaabKitaabApp (created by Mudassar) • ${new Date().toLocaleString()} • Beta-v${PDF_APP_VERSION}</p>
+            </div>
+        `;
         
         // Combine all sections
         pdfContainer.innerHTML = header + summarySection + sharesSection + settlementsSection + footer;
@@ -268,4 +325,7 @@
         
         return pdfContainer;
     }
+    
+    // Main PDF generation function
+    window.generateExpensePDF = generateExpensePDF;
 })();

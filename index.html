@@ -2,15 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HisaabKitaabApp</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
     <div class="container">
-                <header>
+        <header>
             <div class="header-top">
                 <div class="mode-tabs-container">
                     <div class="mode-tabs">
@@ -29,6 +28,7 @@
                     </button>
                     
                     <div id="userStatus" class="user-status" style="display: none;">
+                        <button id="controlPanelBtn" class="btn btn-small" style="display: none;">Control Panel</button>
                         <button id="logoutBtn" class="btn btn-small">Logout</button>
                     </div>
                 </div>
@@ -81,6 +81,54 @@
                     <div class="modal-buttons" style="margin-top: 20px;">
                         <button id="confirmAdminLoginBtn" class="btn btn-success">Login</button>
                         <button id="cancelAdminLoginBtn" class="btn">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Panel Modal -->
+            <div id="controlPanelModal" class="modal">
+                <div class="modal-content control-panel-modal">
+                    <h3>Control Panel</h3>
+                    
+                    <div class="control-panel-section">
+                        <h4 class="section-title">Default Participants</h4>
+                        <p class="control-panel-description">Edit the default participant list. Changes here won't affect existing sheets. Click on a participant to edit their profile.</p>
+                        
+                        <div class="add-participant-form">
+                            <input type="text" id="controlPanelParticipantInput" placeholder="Enter new participant name">
+                            <button id="addDefaultParticipantBtn" class="btn btn-small">Add Participant</button>
+                        </div>
+                        
+                        <ul id="defaultParticipantsList" class="default-participants-list">
+                            <!-- Default participants will be loaded here with profile photos and edit buttons -->
+                        </ul>
+                    </div>
+                    
+                    <div class="control-panel-section">
+                        <h4 class="section-title">Existing Sheets Summary</h4>
+                        <div class="summary-info">
+                            <div class="summary-item">
+                                <span>Total Sheets:</span>
+                                <span id="totalSheetsCount">0</span>
+                            </div>
+                            <div class="summary-item">
+                                <span>Latest Sheet:</span>
+                                <span id="latestSheetDate">None</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-panel-section">
+                        <h4 class="section-title">Change Admin Password</h4>
+                        <div class="password-change-form">
+                            <input type="password" id="newPasswordInput" placeholder="New password (min 6 characters)" class="form-input">
+                            <input type="password" id="confirmPasswordInput" placeholder="Confirm new password" class="form-input">
+                            <button id="changePasswordBtn" class="btn btn-warning">Change Password</button>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-buttons">
+                        <button id="closeControlPanelBtn" class="btn">Close Control Panel</button>
                     </div>
                 </div>
             </div>
@@ -214,9 +262,57 @@
                 </div>
             </div>
         </div>
+
+        <!-- Profile Card Modal -->
+        <div id="profileCardModal" class="modal">
+            <div class="modal-content profile-card-modal">
+                <div class="profile-card-header">
+                    <div id="profileLargePhoto" class="profile-photo-large">
+                        <!-- Large profile photo will be inserted here -->
+                    </div>
+                    <h3 id="profileFullName">Participant Name</h3>
+                </div>
+                
+                <div class="profile-details">
+                    <div class="profile-detail-item">
+                        <span class="detail-label">Mobile Number:</span>
+                        <span id="profileMobile" class="detail-value">Not Available</span>
+                    </div>
+                    <div class="profile-detail-item">
+                        <span class="detail-label">Bank Name:</span>
+                        <span id="profileBank" class="detail-value">Not Available</span>
+                    </div>
+                    <div class="profile-detail-item">
+                        <span class="detail-label">IBAN:</span>
+                        <span id="profileIBAN" class="detail-value">Not Available</span>
+                    </div>
+                </div>
+                
+                <div id="profileEditForm" class="profile-edit-form" style="display: none;">
+                    <h4>Edit Profile</h4>
+                    <input type="text" id="editProfileName" placeholder="Full Name" class="form-input">
+                    <input type="tel" id="editProfileMobile" placeholder="Mobile Number" class="form-input">
+                    <input type="text" id="editProfileBank" placeholder="Bank Name" class="form-input">
+                    <input type="text" id="editProfileIBAN" placeholder="IBAN" class="form-input">
+                    <div class="photo-upload-section">
+                        <small style="color: var(--secondary-color); display: block; margin-bottom: 10px;">Max photo size: 100KB</small>
+                        <label for="profilePhotoUpload" class="btn btn-small">Upload Photo</label>
+                        <input type="file" id="profilePhotoUpload" accept="image/*" style="display: none;">
+                        <button id="removeProfilePhotoBtn" class="btn btn-small btn-danger">Remove Photo</button>
+                    </div>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button id="editProfileBtn" class="btn btn-info" style="display: none;">Edit Profile</button>
+                    <button id="saveProfileBtn" class="btn btn-success" style="display: none;">Save Changes</button>
+                    <button id="cancelEditProfileBtn" class="btn" style="display: none;">Cancel</button>
+                    <button id="closeProfileCardBtn" class="btn">Close</button>
+                </div>
+            </div>
+        </div>
         
         <footer>
-            <p>HisaabKitaab©2025(created by Mudassar)-v1.5</p>
+            <p>HisaabKitaab©2025(created by Mudassar)-v1.6</p>
         </footer>
     </div>
 
@@ -230,10 +326,11 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-
+    
     <!-- Your scripts -->
     <script src="js/firebase-sync.js"></script>
     <script src="js/pdf-generator.js"></script>
+    <script src="js/profile-manager.js"></script>
     <script src="js/script.js"></script>
 </body>
 </html>
