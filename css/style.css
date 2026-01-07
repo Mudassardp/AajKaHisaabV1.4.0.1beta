@@ -1763,3 +1763,32 @@ td:first-child .participant-with-avatar .participant-avatar-small {
     content: "★";
     font-size: 0.9rem;
 }
+
+/* Mobile-specific settlement styles */
+@media (max-width: 600px) {
+    .bank-match-indicator {
+        display: flex !important;
+        justify-content: center !important;
+        margin-top: 8px !important;
+        padding-top: 8px !important;
+        border-top: 1px solid var(--border-color) !important;
+    }
+    
+    .bank-match-indicator span {
+        font-size: 0.75rem !important;
+        padding: 3px 6px !important;
+        max-width: 90% !important;
+        text-align: center !important;
+    }
+    
+    /* Ensure settlement details has proper spacing for bank info */
+    .settlement-details {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+    }
+    
+    .settlement-second-line {
+        margin-top: 8px !important;
+    }
+}
