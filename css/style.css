@@ -1662,6 +1662,42 @@ td:first-child .participant-with-avatar {
     .cropper-container {
         height: 250px;
     }
+    
+    /* FIXED: Ensure bank match indicator displays on mobile */
+    .bank-match-indicator {
+        display: flex !important;
+        justify-content: center !important;
+        margin-top: 8px !important;
+        padding-top: 8px !important;
+        border-top: 1px solid var(--border-color) !important;
+        width: 100% !important;
+    }
+    
+    .bank-match-indicator span {
+        font-size: 0.75rem !important;
+        padding: 4px 8px !important;
+        text-align: center !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        word-break: break-word !important;
+        background-color: color-mix(in srgb, var(--success-color) 20%, transparent) !important;
+        border-radius: 3px !important;
+        border: 1px solid var(--success-color) !important;
+        color: var(--success-color) !important;
+    }
+    
+    /* Ensure settlement details has proper spacing for bank info */
+    .settlement-details {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+    }
+    
+    .settlement-second-line {
+        margin-top: 8px !important;
+        width: 100% !important;
+        justify-content: center !important;
+    }
 }
 
 /* Ensure all avatars stay perfectly round */
